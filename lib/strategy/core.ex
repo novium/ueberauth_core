@@ -21,7 +21,7 @@ defmodule Ueberauth.Strategy.Core do
     opts = [redirect_uri: callback_url(conn)]
     token = Ueberauth.Strategy.Core.OAuth.get_token!([code: code], opts)
 
-    if token.access_token == nil do
+    if is_nil(token.access_token) do
       set_errors!(conn, [error(token.other_params["error"], token.other_params["error_description"])])
     else
       fetch_user(conn, token)
