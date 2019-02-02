@@ -41,7 +41,7 @@ defmodule Ueberauth.Strategy.Core do
   defp fetch_user(conn, token) do
     conn = put_private(conn, :core_token, token)
 
-    path = "http://localhost:4001/oauth/v1/userinfo"
+    path = "http://core:4001/oauth/v1/userinfo"
     resp = Ueberauth.Strategy.Core.OAuth.get(token, path)
 
     case resp do
@@ -50,7 +50,7 @@ defmodule Ueberauth.Strategy.Core do
       {:ok, %OAuth2.Response{status_code: status_code, body: user}} when status_code in 200..399 ->
         put_private(conn, :core_user, user)
       {:error, %OAuth2.Error{reason: reason}} ->
-        set_errors!(conn, [error("OAuth2", reason)])
+        set_errors!(conn, [error("OAuth2", "Error: #{inspect reason}")])
     end
   end
 

@@ -5,18 +5,18 @@ defmodule Ueberauth.Strategy.Core.OAuth do
   @defaults [
      strategy: __MODULE__,
      site: "http://localhost:4001",
-     authorize_url: "/oauth/v1/authorize",
-     token_url: "/oauth/v1/token"
+     authorize_url: "http://localhost:4001/oauth/v1/authorize",
+     token_url: "http://core:4001/oauth/v1/token"
   ]
 
 
   def client(opts \\ []) do
     config = Application.get_env(:ueberauth, Ueberauth.Strategy.Core.OAuth)
-    opts =
+    conf =
       @defaults
       |> Keyword.merge(config)
       |> Keyword.merge(opts)
-    OAuth2.Client.new(opts)
+    OAuth2.Client.new(conf)
   end
 
   def authorize_url!(params \\ [], opts \\ []) do
@@ -39,7 +39,7 @@ defmodule Ueberauth.Strategy.Core.OAuth do
   def get_token!(params \\ [], opts \\ []) do
     client =
       opts
-      |> client
+      |> client()
       |> OAuth2.Client.get_token!(params)
     client.token
   end
@@ -47,6 +47,8 @@ defmodule Ueberauth.Strategy.Core.OAuth do
   def get_token(client, params, headers) do
     client
     |> put_param("client_secret", client.client_secret)
+    |> put_param("client_id", client.client_id)
+    |> put_param("grant_type", "authorization_code")
     |> put_header("Accept", "application/json")
     |> OAuth2.Strategy.AuthCode.get_token(params, headers)
   end
